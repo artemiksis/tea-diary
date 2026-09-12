@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Дневник чая</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#6B4423">
+<meta name="description" content="Личный дневник чая">
+
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Дневник чая">
+<style>
+  :root {
+    --puer: #6B4423;
+    --red: #B22222;
+    --green: #4A7C2F;
+    --white: #E8DFC8;
+    --black: #1A1A1A;
+    --flower: #7B4B94;
+    --paper: #F4EBD7;
+    --paper-dark: #E8DCC0;
+    --ink: #2B2118;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: Georgia, 'Times New Roman', serif;
+    background: #2a1f17;
+    background-image:
+      radial-gradient(circle at 20% 20%, #3d2b1f 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, #1f1611 0%, transparent 50%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px;
+    color: var(--ink);
+  }
+
+  .book {
+    width: 1400px;
+    max-width: 100%;
+    background: var(--paper);
+    border-radius: 6px 12px 12px 6px;
+    box-shadow:
+      0 30px 60px rgba(0,0,0,0.6),
+      inset -8px 0 15px rgba(0,0,0,0.1),
+      inset 8px 0 15px rgba(255,255,255,0.4);
+    position: relative;
+    padding: 0 0 30px 0;
+    overflow: hidden;
+  }
+
+  .book::before {
+    content: '';
+    position: absolute;
+    left: 60px;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(to right, rgba(0,0,0,0.15), rgba(0,0,0,0.05));
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  /* ===== Верхние вкладки ===== */
+  .top-bar {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    padding: 0 20px;
+    margin-top: -2px;
+  }
+
+  .top-tabs {
+    display: flex;
+    gap: 4px;
+    flex: 1;
+  }
+
+  .top-tab {
+    flex: 1;
+    padding: 14px 8px 12px;
+    color: #fff;
+    font-weight: bold;
+    font-size: 14px;
+    text-align: center;
+    cursor: pointer;
+    border: none;
+    border-radius: 0 0 8px 8px;
+    transition: transform 0.15s, box-shadow 0.15s;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    font-family: inherit;
+    letter-spacing: 0.5px;
+    position: relative;
+    top: -2px;
+  }
+
+  .top-tab:hover { transform: translateY(2px); }
+  .top-tab.active {
+    top: 0;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+    padding-bottom: 16px;
+  }
+
+  .top-tab[data-type="puer"]   { background: var(--puer); }
+  .top-tab[data-type="red"]    { background: var(--red); }
+  .top-tab[data-type="green"]  { background: var(--green); }
+  .top-tab[data-type="white"]  { background: var(--white); color: #4a3a22; text-shadow: none; }
+  .top-tab[data-type="black"]  { background: var(--black); }
+  .top-tab[data-type="flower"] { background: var(--flower); }
+
+  /* ===== Панель инструментов ===== */
+  .toolbar {
+    display: flex;
+    gap: 6px;
+    padding: 8px 20px 8px 80px;
+    background: rgba(107, 68, 35, 0.08);
+    border-bottom: 1px solid rgba(107, 68, 35, 0.15);
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .search-box {
+    flex: 1;
+    min-width: 180px;
+    position: relative;
+  }
+
+  .search-box input {
+    width: 100%;
+    padding: 8px 32px 8px 12px;
+    border: 1px solid rgba(107, 68, 35, 0.3);
+    border-radius: 20px;
+    background: rgba(255,255,255,0.5);
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .search-box input:focus {
+    border-color: var(--puer);
+    background: #fff;
+  }
+
+  .search-box .clear {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #999;
+    font-size: 16px;
+    padding: 0 6px;
+    display: none;
+  }
+  .search-box input:not(:placeholder-shown) + .clear { display: block; }
+
+  .tool-btn {
+    padding: 8px 14px;
+    border: 1px solid rgba(107, 68, 35, 0.3);
+    background: rgba(255,255,255,0.5);
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    color: #6B4423;
+    font-weight: bold;
+    transition: background 0.15s, transform 0.15s;
+    white-space: nowrap;
+  }
+  .tool-btn:hover { background: #fff; transform: translateY(-1px); }
+  .tool-btn:active { transform: translateY(0); }
+
+  .tool-btn.compare-active {
+    background: #6B4423;
+    color: #fff;
+    border-color: #6B4423;
+  }
+  .tool-btn.compare-active:hover { background: #7d5330; }
+
+  /* ===== Основная область ===== */
+  .main {
+    display: flex;
+    padding: 24px 30px 10px 80px;
+    gap: 20px;
+    min-height: 560px;
+    position: relative;
+  }
+
+  /* ===== Левые закладки ===== */
+  .bookmarks {
+    position: absolute;
+    left: 0;
+    top: 60px;
+    width: 90px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 620px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-bottom: 10px;
+  }
+
+  .bookmarks::-webkit-scrollbar { width: 4px; }
+  .bookmarks::-webkit-scrollbar-thumb {
+    background: rgba(107,68,35,0.3);
+    border-radius: 2px;
+  }
+
+  .bookmark {
+    width: 70px;
+    height: 38px;
+    background: var(--bm-color, #8b6f4e);
+    color: #fff;
+    font-size: 11px;
+    font-family: inherit;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding-left: 8px;
+    padding-right: 4px;
+    clip-path: polygon(0 0, 100% 0, 100% 70%, 85% 100%, 0 100%);
+    transition: margin-left 0.2s, filter 0.15s, box-shadow 0.15s;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.4);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .bookmark[data-light="true"] {
+    color: #3a2a15;
+    text-shadow: none;
+  }
+
+  .bookmark:hover { margin-left: 4px; filter: brightness(1.15); }
+  .bookmark.active {
+    margin-left: 8px;
+    filter: brightness(1.2);
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+  }
+
+  .bookmark.compare-a::after,
+  .bookmark.compare-b::after {
+    content: 'A';
+    position: absolute;
+    right: 6px;
+    top: 4px;
+    font-size: 9px;
+    background: rgba(255,255,255,0.85);
+    color: #6B4423;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+  }
+  .bookmark.compare-b::after { content: 'B'; }
+
+  /* ===== Страница ===== */
+  .pages-container {
+    flex: 1;
+    display: flex;
+    gap: 14px;
+    position: relative;
+  }
+
+  .page {
+    flex: 1;
+    background: linear-gradient(135deg, var(--paper) 0%, var(--paper-dark) 100%);
+    border-radius: 4px;
+    padding: 26px 30px;
+    box-shadow: inset 0 0 30px rgba(139, 111, 78, 0.15);
+    position: relative;
+    min-height: 500px;
+    animation: pageIn 0.3s ease;
+    min-width: 0;
+  }
+
+  .page-compare {
+    border-left: 2px solid rgba(107, 68, 35, 0.15);
+  }
+
+  .compare-badge {
+    position: absolute;
+    top: -8px;
+    left: 20px;
+    background: #6B4423;
+    color: #fff;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 3px 10px;
+    border-radius: 10px;
+    letter-spacing: 1px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  }
+
+  @keyframes pageIn {
+    from { opacity: 0; transform: translateX(10px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid rgba(107, 68, 35, 0.3);
+    padding-bottom: 10px;
+    margin-bottom: 16px;
+  }
+
+  .page-title {
+    font-size: 18px;
+    color: var(--ink);
+    font-style: italic;
+  }
+
+  .page-color-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.5), 0 2px 4px rgba(0,0,0,0.2);
+  }
+
+  .field {
+    margin-bottom: 12px;
+  }
+
+  .field label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #7a5c3a;
+    margin-bottom: 3px;
+    font-weight: bold;
+  }
+
+  .field input, .field textarea {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(107, 68, 35, 0.4);
+    padding: 5px 2px;
+    font-family: inherit;
+    font-size: 15px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .field input:focus, .field textarea:focus {
+    border-bottom-color: var(--bm-color, #6B4423);
+  }
+
+  .field textarea {
+    resize: vertical;
+    min-height: 50px;
+    border: 1px solid rgba(107, 68, 35, 0.3);
+    border-radius: 4px;
+    padding: 8px;
+    background: rgba(255,255,255,0.3);
+  }
+
+  .row {
+    display: flex;
+    gap: 14px;
+  }
+
+  .row .field { flex: 1; }
+
+  /* ===== Фото упаковки ===== */
+  .photo-section {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 14px;
+  }
+
+  .photo-drop {
+    width: 110px;
+    height: 110px;
+    flex-shrink: 0;
+    border: 2px dashed rgba(107, 68, 35, 0.4);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background: rgba(255,255,255,0.3);
+    transition: border-color 0.2s, background 0.2s;
+    overflow: hidden;
+    position: relative;
+    text-align: center;
+    padding: 6px;
+  }
+
+  .photo-drop:hover, .photo-drop.dragover {
+    border-color: var(--bm-color, #6B4423);
+    background: rgba(255,255,255,0.6);
+  }
+
+  .photo-drop img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    inset: 0;
+  }
+
+  .photo-drop .placeholder {
+    color: #a08a6c;
+    font-size: 11px;
+    font-style: italic;
+    pointer-events: none;
+  }
+
+  .photo-drop .placeholder .icon {
+    font-size: 26px;
+    display: block;
+    margin-bottom: 2px;
+    opacity: 0.5;
+  }
+
+  .photo-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding-top: 2px;
+  }
+
+  .photo-actions button {
+    padding: 5px 10px;
+    font-size: 11px;
+    border-radius: 14px;
+    border: 1px solid rgba(107, 68, 35, 0.3);
+    background: rgba(255,255,255,0.5);
+    cursor: pointer;
+    font-family: inherit;
+    color: #6B4423;
+    transition: background 0.15s;
+    white-space: nowrap;
+  }
+  .photo-actions button:hover { background: #fff; }
+  .photo-actions button.remove-photo {
+    color: #b22222;
+    border-color: rgba(178, 34, 34, 0.3);
+  }
+
+  /* ===== Проливы ===== */
+  .infusions-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 16px 0 8px;
+    border-bottom: 1px dashed rgba(107, 68, 35, 0.4);
+    padding-bottom: 5px;
+  }
+
+  .infusions-header h3 {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #7a5c3a;
+  }
+
+  .add-btn {
+    background: var(--bm-color, #6B4423);
+    color: #fff;
+    border: none;
+    padding: 5px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 12px;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .add-btn:hover { transform: scale(1.05); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+
+  .infusion-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 190px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+
+  .infusion {
+    display: grid;
+    grid-template-columns: 70px 1fr 30px;
+    gap: 8px;
+    align-items: center;
+    background: rgba(255,255,255,0.35);
+    padding: 6px 10px;
+    border-radius: 6px;
+    border-left: 3px solid var(--bm-color, #6B4423);
+  }
+
+  .infusion .num {
+    font-weight: bold;
+    color: #7a5c3a;
+    font-size: 12px;
+  }
+
+  .infusion input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(107,68,35,0.25);
+    padding: 3px 2px;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--ink);
+    outline: none;
+  }
+
+  .infusion .remove {
+    background: none;
+    border: none;
+    color: #b22222;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0;
+    opacity: 0.5;
+    transition: opacity 0.15s;
+  }
+  .infusion .remove:hover { opacity: 1; }
+
+  /* ===== Подсветка поиска ===== */
+  .bookmark mark {
+    background: #ffe082;
+    color: inherit;
+    padding: 0 1px;
+    border-radius: 2px;
+  }
+
+  /* ===== Пустое состояние ===== */
+  .empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 400px;
+    color: #a08a6c;
+    font-style: italic;
+    text-align: center;
+  }
+
+  .empty .tea-icon {
+    font-size: 60px;
+    margin-bottom: 20px;
+    opacity: 0.4;
+  }
+
+  /* Кнопка новой записи */
+  .new-entry-btn {
+    margin-top: 6px;
+    margin-left: 0;
+    background: rgba(107, 68, 35, 0.15);
+    color: #6B4423;
+    border: 1px dashed rgba(107, 68, 35, 0.5);
+    padding: 8px;
+    width: 70px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: bold;
+    transition: background 0.15s;
+    flex-shrink: 0;
+  }
+  .new-entry-btn:hover { background: rgba(107, 68, 35, 0.3); }
+
+  /* Тосты */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #2b2118;
+    color: #f4ebd7;
+    padding: 12px 24px;
+    border-radius: 24px;
+    font-family: inherit;
+    font-size: 14px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+    pointer-events: none;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ===== Плашка режима сравнения ===== */
+  .compare-hint {
+    position: absolute;
+    bottom: -22px;
+    right: 20px;
+    font-size: 11px;
+    color: #7a5c3a;
+    font-style: italic;
+    opacity: 0.7;
+  }
+</style>
+</head>
+<body>
+
+<div class="book">
+  <div class="top-bar">
+    <div class="top-tabs" id="topTabs">
+      <button class="top-tab" data-type="puer">Пуэр</button>
+      <button class="top-tab" data-type="red">Красный</button>
+      <button class="top-tab" data-type="green">Зелёный</button>
+      <button class="top-tab" data-type="white">Белый</button>
+      <button class="top-tab" data-type="black">Чёрный</button>
+      <button class="top-tab" data-type="flower">Цветочный</button>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="🔍 Поиск по названию...">
+      <button class="clear" id="searchClear" title="Очистить">×</button>
+    </div>
+    <button class="tool-btn" id="compareBtn" title="Режим сравнения двух чаёв">⚖ Сравнить</button>
+	<button class="tool-btn" id="installBtn" style="display:none" title="Установить как приложение">📲 Установить</button>
+    <button class="tool-btn" id="exportBtn" title="Скачать все записи в JSON">📤 Экспорт</button>
+    <button class="tool-btn" id="importBtn" title="Загрузить записи из JSON">📥 Импорт</button>
+    <input type="file" id="importFile" accept="application/json" style="display:none">
+  </div>
+
+  <div class="main">
+    <div class="bookmarks" id="bookmarks"></div>
+    <div class="pages-container" id="pagesContainer"></div>
+    <div class="compare-hint" id="compareHint" style="display:none">Клик по закладкам добавляет A/B</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// =====================================================================
+//  КОНСТАНТЫ
+// =====================================================================
+const TEA_TYPES = {
+  puer:   { name: 'Пуэр',       color: '#6B4423', light: false },
+  red:    { name: 'Красный',    color: '#B22222', light: false },
+  green:  { name: 'Зелёный',    color: '#4A7C2F', light: false },
+  white:  { name: 'Белый',      color: '#E8DFC8', light: true  },
+  black:  { name: 'Чёрный',     color: '#1A1A1A', light: false },
+  flower: { name: 'Цветочный',  color: '#7B4B94', light: false }
+};
+
+const STORAGE_KEY = 'teaDiary_v3';
+const DB_NAME = 'teaDiaryDB';
+const DB_VERSION = 1;
+const STORE_PHOTOS = 'photos';
+
+// =====================================================================
+//  INDEXEDDB — для фотографий
+// =====================================================================
+let db = null;
+
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = e => {
+      const database = e.target.result;
+      if (!database.objectStoreNames.contains(STORE_PHOTOS)) {
+        database.createObjectStore(STORE_PHOTOS);
+      }
+    };
+    req.onsuccess = e => { db = e.target.result; resolve(db); };
+    req.onerror = e => reject(e.target.error);
+  });
+}
+
+function dbPut(key, value) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_PHOTOS, 'readwrite');
+    tx.objectStore(STORE_PHOTOS).put(value, key);
+    tx.oncomplete = () => resolve();
+    tx.onerror = e => reject(e.target.error);
+  });
+}
+
+function dbGet(key) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_PHOTOS, 'readonly');
+    const req = tx.objectStore(STORE_PHOTOS).get(key);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = e => reject(e.target.error);
+  });
+}
+
+function dbDelete(key) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_PHOTOS, 'readwrite');
+    tx.objectStore(STORE_PHOTOS).delete(key);
+    tx.oncomplete = () => resolve();
+    tx.onerror = e => reject(e.target.error);
+  });
+}
+
+function dbClear() {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_PHOTOS, 'readwrite');
+    tx.objectStore(STORE_PHOTOS).clear();
+    tx.oncomplete = () => resolve();
+    tx.onerror = e => reject(e.target.error);
+  });
+}
+
+function dbGetAllKeys() {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_PHOTOS, 'readonly');
+    const req = tx.objectStore(STORE_PHOTOS).getAllKeys();
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = e => reject(e.target.error);
+  });
+}
+
+// Кэш URL фотографий в памяти (чтобы не читать IndexedDB на каждый рендер)
+const photoCache = new Map(); // key -> dataURL | null
+
+async function getPhoto(key) {
+  if (photoCache.has(key)) return photoCache.get(key);
+  const value = await dbGet(key);
+  photoCache.set(key, value || null);
+  return value || null;
+}
+
+async function setPhoto(key, dataUrl) {
+  if (dataUrl) {
+    await dbPut(key, dataUrl);
+    photoCache.set(key, dataUrl);
+  } else {
+    await dbDelete(key);
+    photoCache.set(key, null);
+  }
+}
+
+// =====================================================================
+//  ДАННЫЕ
+// =====================================================================
+let data = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+if (!data || typeof data !== 'object') {
+  data = {};
+  Object.keys(TEA_TYPES).forEach(k => data[k] = []);
+  data.puer.push({
+    id: uid(),
+    name: 'Шэн Пуэр Мэнку 2018',
+    temperature: '95',
+    notes: 'Дымный, с нотками сухофруктов и влажного дерева.',
+    photoKey: null,
+    infusions: [{ time: '10' }, { time: '15' }, { time: '20' }, { time: '25' }]
+  });
+  data.puer.push({
+    id: uid(),
+    name: 'Шу Пуэр Мэнхай 2020',
+    temperature: '100',
+    notes: 'Землистый, ореховый, мягкий.',
+    photoKey: null,
+    infusions: [{ time: '8' }, { time: '10' }, { time: '12' }]
+  });
+  data.green.push({
+    id: uid(),
+    name: 'Лунцзин Си Ху',
+    temperature: '80',
+    notes: 'Свежий, каштановый, сладковатый.',
+    photoKey: null,
+    infusions: [{ time: '20' }, { time: '30' }, { time: '40' }]
+  });
+  save();
+}
+
+function uid() { return Math.random().toString(36).slice(2, 10); }
+function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+
+// =====================================================================
+//  СОСТОЯНИЕ
+// =====================================================================
+let currentType = 'puer';
+let currentEntryId = null;
+let searchQuery = '';
+let compareMode = false;
+let compareA = null; // id
+let compareB = null; // id
+
+// =====================================================================
+//  ХЕЛПЕРЫ
+// =====================================================================
+function escapeHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function escapeAttr(s) { return escapeHtml(s); }
+
+function highlightMatch(text, query) {
+  const safe = escapeHtml(text);
+  if (!query) return safe;
+  const q = query.toLowerCase();
+  const lower = text.toLowerCase();
+  const idx = lower.indexOf(q);
+  if (idx === -1) return safe;
+  const before = escapeHtml(text.slice(0, idx));
+  const match  = escapeHtml(text.slice(idx, idx + query.length));
+  const after  = escapeHtml(text.slice(idx + query.length));
+  return `${before}<mark>${match}</mark>${after}`;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// =====================================================================
+//  РЕНДЕР: ВЕРХНИЕ ВКЛАДКИ
+// =====================================================================
+function renderTopTabs() {
+  document.querySelectorAll('.top-tab').forEach(tab => {
+    tab.classList.toggle('active', tab.dataset.type === currentType);
+  });
+}
+
+// =====================================================================
+//  РЕНДЕР: ЗАКЛАДКИ
+// =====================================================================
+function renderBookmarks() {
+  const container = document.getElementById('bookmarks');
+  container.innerHTML = '';
+  const entries = data[currentType];
+  const color = TEA_TYPES[currentType].color;
+  const isLight = TEA_TYPES[currentType].light;
+
+  const visible = entries.filter(e =>
+    !searchQuery || (e.name || '').toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  if (searchQuery && visible.length === 0) {
+    const hint = document.createElement('div');
+    hint.style.cssText = 'font-size:11px;color:#a08a6c;font-style:italic;padding:6px;';
+    hint.textContent = 'Ничего не найдено';
+    container.appendChild(hint);
+  }
+
+  visible.forEach(entry => {
+    const bm = document.createElement('button');
+    bm.className = 'bookmark';
+    bm.style.setProperty('--bm-color', color);
+    if (isLight) bm.dataset.light = 'true';
+    bm.innerHTML = highlightMatch(entry.name || 'Без названия', searchQuery);
+    bm.title = entry.name || 'Без названия';
+
+    if (compareMode) {
+      if (entry.id === compareA) bm.classList.add('compare-a', 'active');
+      if (entry.id === compareB) bm.classList.add('compare-b', 'active');
+    } else {
+      if (entry.id === currentEntryId) bm.classList.add('active');
+    }
+
+    bm.onclick = () => {
+      if (compareMode) {
+        handleCompareClick(entry.id);
+      } else {
+        currentEntryId = entry.id;
+        render();
+      }
+    };
+    container.appendChild(bm);
+  });
+
+  const newBtn = document.createElement('button');
+  newBtn.className = 'new-entry-btn';
+  newBtn.textContent = '+ Чай';
+  newBtn.onclick = () => {
+    const newEntry = {
+      id: uid(),
+      name: '',
+      temperature: '',
+      notes: '',
+      photoKey: null,
+      infusions: [{ time: '' }]
+    };
+    data[currentType].push(newEntry);
+    if (compareMode) {
+      if (!compareA) compareA = newEntry.id;
+      else if (!compareB) compareB = newEntry.id;
+    } else {
+      currentEntryId = newEntry.id;
+    }
+    save();
+    render();
+  };
+  container.appendChild(newBtn);
+}
+
+function handleCompareClick(id) {
+  // Логика: если id === A → снять A. Если id === B → снять B.
+  // Иначе — заполнить первую свободную слот (A, потом B). Если оба заняты — заменить A.
+  if (compareA === id) { compareA = null; }
+  else if (compareB === id) { compareB = null; }
+  else if (!compareA) { compareA = id; }
+  else if (!compareB) { compareB = id; }
+  else { compareA = compareB; compareB = id; }
+  render();
+}
+
+// =====================================================================
+//  РЕНДЕР: СТРАНИЦЫ
+// =====================================================================
+async function renderPages() {
+  const container = document.getElementById('pagesContainer');
+  container.innerHTML = '';
+  const hint = document.getElementById('compareHint');
+  hint.style.display = compareMode ? 'block' : 'none';
+
+  if (compareMode) {
+    if (!compareA && !compareB) {
+      container.innerHTML = `
+        <div class="page">
+          <div class="empty">
+            <div class="tea-icon">⚖</div>
+            <p>Режим сравнения</p>
+            <p style="font-size:14px;margin-top:8px">Кликните по двум закладкам слева,<br>чтобы выбрать чаи A и B.</p>
+          </div>
+        </div>`;
+      return;
+    }
+
+    const entryA = data[currentType].find(e => e.id === compareA) || null;
+    const entryB = data[currentType].find(e => e.id === compareB) || null;
+
+    const pageA = document.createElement('div');
+    pageA.className = 'page';
+    pageA.innerHTML = `<div class="compare-badge">A</div>`;
+    pageA.appendChild(await buildPageContent(entryA, 'A'));
+
+    const pageB = document.createElement('div');
+    pageB.className = 'page page-compare';
+    pageB.innerHTML = `<div class="compare-badge" style="background:#B22222">B</div>`;
+    pageB.appendChild(await buildPageContent(entryB, 'B'));
+
+    container.appendChild(pageA);
+    container.appendChild(pageB);
+    return;
+  }
+
+  // Обычный режим
+  if (!data[currentType].length) {
+    container.innerHTML = `
+      <div class="page">
+        <div class="empty">
+          <div class="tea-icon">🍃</div>
+          <p>Пока нет записей в этом разделе.</p>
+          <p>Нажмите «+ Чай» слева, чтобы добавить.</p>
+        </div>
+      </div>`;
+    return;
+  }
+
+  let entry = data[currentType].find(e => e.id === currentEntryId);
+  if (!entry) {
+    entry = data[currentType][0];
+    currentEntryId = entry.id;
+  }
+
+  const page = document.createElement('div');
+  page.className = 'page';
+  page.appendChild(await buildPageContent(entry, null));
+  container.appendChild(page);
+}
+
+// =====================================================================
+//  СБОРКА СОДЕРЖИМОГО СТРАНИЦЫ
+// =====================================================================
+async function buildPageContent(entry, slot /* 'A' | 'B' | null */) {
+  const color = TEA_TYPES[currentType].color;
+  const wrap = document.createElement('div');
+
+  if (!entry) {
+    wrap.innerHTML = `
+      <div class="empty" style="height:400px">
+        <div class="tea-icon">◇</div>
+        <p>Слот ${slot} пуст</p>
+        <p style="font-size:13px;margin-top:6px">Выберите закладку слева</p>
+      </div>`;
+    return wrap;
+  }
+
+  // Загружаем фото
+  let photoSrc = null;
+  if (entry.photoKey) {
+    photoSrc = await getPhoto(entry.photoKey);
+  }
+
+  const photoBlock = photoSrc
+    ? `<img src="${photoSrc}" alt="Упаковка">`
+    : `<div class="placeholder"><span class="icon">📷</span>Фото упаковки</div>`;
+
+  wrap.innerHTML = `
+    <div class="page-header">
+      <div class="page-title">${TEA_TYPES[currentType].name} чай</div>
+      <div class="page-color-dot" style="background:${color}"></div>
+    </div>
+
+    <div class="photo-section">
+      <div class="photo-drop" data-photo-drop>
+        ${photoBlock}
+      </div>
+      <div class="photo-actions">
+        <button data-photo-pick>📁 Выбрать</button>
+        <button class="remove-photo" data-photo-remove ${photoSrc ? '' : 'style="display:none"'}>✕ Удалить</button>
+      </div>
+      <input type="file" accept="image/*" style="display:none" data-photo-input>
+    </div>
+
+    <div class="field">
+      <label>Название</label>
+      <input type="text" data-f-name value="${escapeAttr(entry.name)}" placeholder="Например, Да Хун Пао">
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>Температура (°C)</label>
+        <input type="text" data-f-temp value="${escapeAttr(entry.temperature)}" placeholder="85">
+      </div>
+    </div>
+
+    <div class="infusions-header">
+      <h3>Проливы</h3>
+      <button class="add-btn" data-add-infusion>+ Пролив</button>
+    </div>
+
+    <div class="infusion-list">
+      ${entry.infusions.map((inf, i) => `
+        <div class="infusion" data-index="${i}">
+          <span class="num">Пролив ${i + 1}</span>
+          <input type="text" data-inf-time value="${escapeAttr(inf.time)}" placeholder="секунд">
+          <button class="remove" data-remove="${i}" title="Удалить">×</button>
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="field" style="margin-top:16px">
+      <label>Заметки о вкусе</label>
+      <textarea data-f-notes placeholder="Аромат, вкус, послевкусие...">${escapeHtml(entry.notes)}</textarea>
+    </div>
+  `;
+
+  // ===== Привязка полей =====
+  wrap.querySelector('[data-f-name]').oninput = e => {
+    entry.name = e.target.value; save(); renderBookmarks();
+  };
+  wrap.querySelector('[data-f-temp]').oninput = e => { entry.temperature = e.target.value; save(); };
+  wrap.querySelector('[data-f-notes]').oninput = e => { entry.notes = e.target.value; save(); };
+
+  wrap.querySelectorAll('[data-inf-time]').forEach(input => {
+    input.oninput = e => {
+      const idx = +e.target.closest('.infusion').dataset.index;
+      entry.infusions[idx].time = e.target.value;
+      save();
+    };
+  });
+
+  wrap.querySelectorAll('[data-remove]').forEach(btn => {
+    btn.onclick = () => {
+      entry.infusions.splice(+btn.dataset.remove, 1);
+      save();
+      renderPages();
+    };
+  });
+
+  wrap.querySelector('[data-add-infusion]').onclick = () => {
+    entry.infusions.push({ time: '' });
+    save();
+    renderPages();
+  };
+
+  // ===== Фото =====
+  const photoDrop = wrap.querySelector('[data-photo-drop]');
+  const photoInput = wrap.querySelector('[data-photo-input]');
+  const photoRemove = wrap.querySelector('[data-photo-remove]');
+
+  wrap.querySelector('[data-photo-pick]').onclick = () => photoInput.click();
+  photoDrop.onclick = () => photoInput.click();
+
+  const savePhoto = async (file) => {
+    const dataUrl = await compressImage(file);
+    // Генерируем ключ если нет
+    if (!entry.photoKey) entry.photoKey = 'photo_' + entry.id;
+    await setPhoto(entry.photoKey, dataUrl);
+    save();
+    renderPages();
+    showToast('Фото добавлено');
+  };
+
+  photoInput.onchange = e => {
+    const file = e.target.files[0];
+    if (file) savePhoto(file);
+  };
+
+  photoDrop.addEventListener('dragover', e => { e.preventDefault(); photoDrop.classList.add('dragover'); });
+  photoDrop.addEventListener('dragleave', () => photoDrop.classList.remove('dragover'));
+  photoDrop.addEventListener('drop', e => {
+    e.preventDefault();
+    photoDrop.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) savePhoto(file);
+  });
+
+  wrap.addEventListener('paste', e => {
+    const item = [...(e.clipboardData?.items || [])].find(i => i.type.startsWith('image/'));
+    if (item) savePhoto(item.getAsFile());
+  });
+
+  photoRemove.onclick = async (e) => {
+    e.stopPropagation();
+    if (entry.photoKey) {
+      await setPhoto(entry.photoKey, null);
+      entry.photoKey = null;
+      save();
+      renderPages();
+      showToast('Фото удалено');
+    }
+  };
+
+  return wrap;
+}
+
+// =====================================================================
+//  СЖАТИЕ ИЗОБРАЖЕНИЯ
+// =====================================================================
+function compressImage(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 1000;
+        let { width, height } = img;
+        if (width > MAX || height > MAX) {
+          const ratio = Math.min(MAX / width, MAX / height);
+          width = Math.round(width * ratio);
+          height = Math.round(height * ratio);
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', 0.85));
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// =====================================================================
+//  ЭКСПОРТ / ИМПОРТ (фото теперь отдельно!)
+// =====================================================================
+async function exportData() {
+  // Собираем все фото из IndexedDB в отдельный объект
+  const keys = await dbGetAllKeys();
+  const photos = {};
+  for (const k of keys) {
+    const v = await dbGet(k);
+    if (v) photos[k] = v;
+  }
+
+  const payload = {
+    version: 3,
+    exportedAt: new Date().toISOString(),
+    data,
+    photos
+  };
+
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const date = new Date().toISOString().slice(0, 10);
+  a.href = url;
+  a.download = `tea-diary-${date}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast(`Экспортировано (${keys.length} фото)`);
+}
+
+function importData(file) {
+  const reader = new FileReader();
+  reader.onload = async (ev) => {
+    try {
+      const imported = JSON.parse(ev.target.result);
+
+      // Поддержка двух форматов: v3 {data, photos} и старый (просто data)
+      const importedData = imported.data || imported;
+      const importedPhotos = imported.photos || null;
+
+      if (typeof importedData !== 'object' || importedData === null) throw new Error();
+
+      const merged = {};
+      Object.keys(TEA_TYPES).forEach(k => {
+        merged[k] = Array.isArray(importedData[k]) ? importedData[k] : [];
+      });
+
+      Object.keys(merged).forEach(k => {
+        merged[k] = merged[k].map(e => ({
+          id: e.id || uid(),
+          name: e.name || '',
+          temperature: e.temperature || '',
+          notes: e.notes || '',
+          photoKey: e.photoKey || null,
+          // Поддержка старых версий с полем photo (base64 прямо в записи)
+          _legacyPhoto: e.photo || null,
+          infusions: Array.isArray(e.infusions) && e.infusions.length
+            ? e.infusions.map(i => ({ time: i.time || '' }))
+            : [{ time: '' }]
+        }));
+      });
+
+      // Очищаем старую БД фото и заливаем новые
+      await dbClear();
+      photoCache.clear();
+
+      if (importedPhotos) {
+        for (const [k, v] of Object.entries(importedPhotos)) {
+          await setPhoto(k, v);
+        }
+      }
+
+      // Миграция legacy-фото в IndexedDB
+      for (const type of Object.keys(merged)) {
+        for (const e of merged[type]) {
+          if (e._legacyPhoto) {
+            const key = 'photo_' + e.id;
+            await setPhoto(key, e._legacyPhoto);
+            e.photoKey = key;
+          }
+          delete e._legacyPhoto;
+        }
+      }
+
+      data = merged;
+      save();
+      currentType = 'puer';
+      currentEntryId = data.puer[0]?.id || null;
+      compareA = null; compareB = null;
+      render();
+      showToast('Дневник загружен');
+    } catch (err) {
+      console.error(err);
+      showToast('Ошибка: неверный файл');
+    }
+  };
+  reader.readAsText(file);
+}
+
+// =====================================================================
+//  ОБЩИЙ РЕНДЕР
+// =====================================================================
+async function render() {
+  renderTopTabs();
+  renderBookmarks();
+  await renderPages();
+}
+
+// =====================================================================
+//  СОБЫТИЯ
+// =====================================================================
+document.getElementById('topTabs').addEventListener('click', e => {
+  const tab = e.target.closest('.top-tab');
+  if (!tab) return;
+  currentType = tab.dataset.type;
+  currentEntryId = data[currentType][0]?.id || null;
+  compareA = null; compareB = null;
+  render();
+});
+
+const searchInput = document.getElementById('searchInput');
+const searchClear = document.getElementById('searchClear');
+searchInput.addEventListener('input', e => {
+  searchQuery = e.target.value.trim();
+  renderBookmarks();
+  if (!compareMode) {
+    const visible = data[currentType].filter(x =>
+      !searchQuery || (x.name || '').toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    if (visible.length && !visible.find(x => x.id === currentEntryId)) {
+      currentEntryId = visible[0].id;
+      renderPages();
+    }
+  }
+});
+searchClear.addEventListener('click', () => {
+  searchInput.value = '';
+  searchQuery = '';
+  render();
+});
+
+// Режим сравнения
+const compareBtn = document.getElementById('compareBtn');
+compareBtn.onclick = () => {
+  compareMode = !compareMode;
+  compareBtn.classList.toggle('compare-active', compareMode);
+  if (compareMode) {
+    // Включаем: если есть currentEntryId — делаем его A
+    compareA = currentEntryId || data[currentType][0]?.id || null;
+    compareB = null;
+    showToast('Режим сравнения: выберите закладку A и B');
+  } else {
+    // Выключаем: возвращаемся к обычному режиму
+    if (compareA) currentEntryId = compareA;
+    compareA = null; compareB = null;
+  }
+  render();
+};
+
+// Экспорт / импорт
+document.getElementById('exportBtn').onclick = exportData;
+document.getElementById('importBtn').onclick = () => document.getElementById('importFile').click();
+document.getElementById('importFile').onchange = e => {
+  const file = e.target.files[0];
+  if (file) importData(file);
+  e.target.value = '';
+};
+
+// =====================================================================
+//  СТАРТ
+// =====================================================================
+(async function init() {
+  try {
+    await openDB();
+  } catch (e) {
+    console.error('IndexedDB не открылась:', e);
+    showToast('⚠ IndexedDB недоступна, фото работать не будут');
+  }
+  currentEntryId = data[currentType][0]?.id || null;
+  await render();
+})();
+</script>
+<script>
+// ===== Регистрация Service Worker =====
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(reg => console.log('✅ SW зарегистрирован:', reg.scope))
+      .catch(err => console.warn('⚠ SW не зарегистрирован:', err));
+  });
+}
+
+// ===== Кнопка "Установить" =====
+let deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const btn = document.getElementById('installBtn');
+  if (btn) btn.style.display = 'inline-block';
+});
+
+document.addEventListener('click', async (e) => {
+  if (e.target && e.target.id === 'installBtn') {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log('Установка:', outcome);
+    deferredPrompt = null;
+    e.target.style.display = 'none';
+  }
+});
+
+window.addEventListener('appinstalled', () => {
+  const btn = document.getElementById('installBtn');
+  if (btn) btn.style.display = 'none';
+  deferredPrompt = null;
+  console.log('✅ Приложение установлено');
+});
+</script>
+</body>
+</html>

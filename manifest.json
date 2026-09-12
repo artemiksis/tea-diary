@@ -1,0 +1,32 @@
+{
+  "name": "Дневник чая",
+  "short_name": "Чай",
+  "description": "Личный дневник чая: вкус, температура, проливы, фото упаковки",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#F4EBD7",
+  "theme_color": "#6B4423",
+  "lang": "ru",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
