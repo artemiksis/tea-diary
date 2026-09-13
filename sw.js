@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tea-diary-v2';
+const CACHE_NAME = 'tea-diary-v4';
 
 const PRECACHE_URLS = [
   './',

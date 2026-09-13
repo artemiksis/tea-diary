@@ -619,6 +619,292 @@
     font-style: italic;
     opacity: 0.7;
   }
+  /* ================================================================
+   АДАПТАЦИЯ ПОД МОБИЛЬНЫЕ УСТРОЙСТВА
+   ================================================================ */
+
+/* ===== Планшеты и узкие ноутбуки (до 1200px) ===== */
+@media (max-width: 1200px) {
+  .book {
+    width: 100%;
+    border-radius: 0;
+  }
+  .main {
+    padding: 20px 20px 10px 70px;
+  }
+  .bookmarks {
+    width: 70px;
+  }
+  .bookmark {
+    width: 60px;
+    font-size: 10px;
+  }
+  .new-entry-btn {
+    width: 60px;
+  }
+}
+
+/* ===== Телефоны в ландшафте и маленькие планшеты (до 900px) ===== */
+@media (max-width: 900px) {
+  body {
+    padding: 0;
+    align-items: stretch;
+  }
+  .book {
+    width: 100%;
+    border-radius: 0;
+    min-height: 100vh;
+    padding: 0 0 20px 0;
+  }
+  .book::before {
+    display: none;
+  }
+
+  /* Верхние вкладки — горизонтальный скролл */
+  .top-bar {
+    padding: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .top-bar::-webkit-scrollbar {
+    display: none;
+  }
+  .top-tabs {
+    padding: 0 8px;
+    gap: 3px;
+    flex: none; /* не растягиваемся на всю ширину */
+  }
+  .top-tab {
+    flex: none; /* вкладки не сжимаются */
+    min-width: 72px; /* минимальная ширина, чтобы не сжимались в точку */
+    padding: 10px 12px 8px;
+    font-size: 12px;
+    letter-spacing: 0;
+    white-space: nowrap;
+  }
+  .top-tab.active {
+    padding-bottom: 12px;
+  }
+
+  /* Тулбар */
+  .toolbar {
+    padding: 8px 12px;
+  }
+  .search-box {
+    min-width: 100%;
+    flex-basis: 100%;
+  }
+  .tool-btn {
+    flex: 1;
+    padding: 8px 8px;
+    font-size: 12px;
+  }
+
+  /* Главная область — в столбик */
+  .main {
+    flex-direction: column;
+    padding: 12px;
+    gap: 12px;
+    min-height: auto;
+  }
+
+  /* Закладки — горизонтальная строка сверху */
+  .bookmarks {
+    position: static;
+    width: 100%;
+    max-height: none;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 4px 0 8px;
+    border-bottom: 1px dashed rgba(107, 68, 35, 0.3);
+  }
+  .bookmarks::-webkit-scrollbar {
+    height: 4px;
+  }
+  .bookmark {
+    width: auto;
+    min-width: 80px;
+    max-width: 140px;
+    height: 36px;
+    padding: 0 12px;
+    flex-shrink: 0;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 92% 88%, 0 100%);
+    font-size: 11px;
+  }
+  .bookmark:hover {
+    margin-left: 0;
+  }
+  .bookmark.active {
+    margin-left: 0;
+    transform: translateY(2px);
+  }
+  .bookmark.compare-a::after,
+  .bookmark.compare-b::after {
+    right: 3px;
+    top: 2px;
+  }
+  .new-entry-btn {
+    width: auto;
+    min-width: 70px;
+    padding: 8px 12px;
+    margin-top: 0;
+    font-size: 11px;
+  }
+
+  /* Страницы */
+  .pages-container {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .page {
+    padding: 20px 18px;
+    min-height: auto;
+    border-radius: 6px;
+  }
+  .page-compare {
+    border-left: none;
+    border-top: 2px solid rgba(107, 68, 35, 0.15);
+  }
+  .compare-badge {
+    left: 12px;
+  }
+  .page-title {
+    font-size: 16px;
+  }
+
+  /* Фото */
+  .photo-section {
+    flex-direction: column;
+    align-items: center;
+  }
+  .photo-drop {
+    width: 140px;
+    height: 140px;
+  }
+  .photo-actions {
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  /* Проливы */
+  .infusion {
+    grid-template-columns: 60px 1fr 30px;
+    gap: 6px;
+    padding: 6px 8px;
+  }
+  .infusion .num {
+    font-size: 11px;
+  }
+  .infusion input {
+    font-size: 14px;
+  }
+
+  /* Поля ввода — 16px предотвращает авто-зум на телефоне */
+  .field input,
+  .field textarea {
+    font-size: 16px;
+  }
+
+  .compare-hint {
+    position: static;
+    text-align: center;
+    margin-top: 6px;
+    font-size: 11px;
+  }
+}
+
+/* ===== Маленькие телефоны в портрете (до 500px) ===== */
+@media (max-width: 500px) {
+    .top-bar {
+    padding: 0;
+  }
+  .top-tabs {
+    padding: 0 4px;
+    gap: 2px;
+  }
+  .top-tab {
+    min-width: 64px;
+    padding: 8px 10px 6px;
+    font-size: 11px;
+  }
+  .top-tab.active {
+    padding-bottom: 10px;
+  }
+  .toolbar {
+    gap: 4px;
+    padding: 6px 8px;
+  }
+  .tool-btn {
+    font-size: 11px;
+    padding: 7px 6px;
+  }
+  .main {
+    padding: 8px;
+  }
+  .page {
+    padding: 16px 14px;
+  }
+  .page-title {
+    font-size: 15px;
+  }
+  .row {
+    flex-direction: column;
+    gap: 0;
+  }
+  .infusion {
+    grid-template-columns: 52px 1fr 26px;
+    font-size: 12px;
+  }
+
+  /* Тосты на всю ширину экрана */
+  .toast {
+    left: 12px;
+    right: 12px;
+    transform: translateX(0) translateY(100px);
+    text-align: center;
+  }
+  .toast.show {
+    transform: translateX(0) translateY(0);
+  }
+}
+
+/* ===== Ландшафт телефона (короткий экран) ===== */
+@media (max-height: 500px) and (orientation: landscape) {
+  .top-tab {
+    padding: 8px 4px 6px;
+    font-size: 11px;
+  }
+  .toolbar {
+    padding: 6px 12px;
+  }
+  .photo-drop {
+    width: 100px;
+    height: 100px;
+  }
+  .infusion-list {
+    max-height: 140px;
+  }
+}
+
+/* ===== Глобально: убираем горизонтальный скролл и авто-зум ===== */
+@media (max-width: 900px) {
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  body {
+    overflow-x: hidden;
+    width: 100%;
+  }
+}
 </style>
 </head>
 <body>
